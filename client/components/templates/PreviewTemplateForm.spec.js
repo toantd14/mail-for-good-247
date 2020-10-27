@@ -6,6 +6,7 @@ import PreviewTemplateForm from './PreviewTemplateForm';
 
 const mockProps = ( overrides) => ({ // eslint-disable-line no-unused-vars
   handleSubmit: () => {},
+  openTestSendModal: () => {},
   lastPage: () => {},
   form: { values: { emailBody: '' } },
   templateView: {},

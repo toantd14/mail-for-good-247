@@ -1,4 +1,4 @@
-FROM node:8.2.1-onbuild
+FROM node:12
 
 # Copying package.json and running
 # npm install are automatically handled

@@ -1,55 +1,39 @@
 import React, { Component, PropTypes } from 'react';
-import ReactQuill from 'react-quill';
-import Quill from 'quill';
+import { Editor } from '@gevorg2/tinymce-react-15';
 
-// Change <p> tags to <div> tags as empty lines are rendered as <p><br></p> which is two spaces, <div><br></div> is one
-// Adapted from https://codepen.io/alexkrolick/pen/PWrKdx?editors=0010 and https://codepen.io/quill/pen/VjgorV
-const Block = Quill.import('blots/block');
-Block.tagName = 'DIV';
-Quill.register(Block, true);
-
-const HTML_MODULE = {
-  toolbar: [
-    ['bold', 'italic', 'underline', 'strike'],        // toggled buttons
-    ['blockquote', 'code-block'],
-
-    [{ 'header': 1 }, { 'header': 2 }],               // custom button values
-    [{ 'list': 'ordered'}, { 'list': 'bullet' }],
-    [{ 'script': 'sub'}, { 'script': 'super' }],      // superscript/subscript
-    [{ 'indent': '-1'}, { 'indent': '+1' }],          // outdent/indent
-    [{ 'direction': 'rtl' }],                         // text direction
-
-    [{ 'size': ['small', false, 'large', 'huge'] }],  // custom dropdown
-    [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
-
-    [{ 'color': [] }, { 'background': [] }],          // dropdown with defaults from theme
-    [{ 'font': [] }],
-    [{ 'align': [] }],
-
-    ['clean']                                         // remove formatting button
-  ]
-};
-
-export default class TextEditorRich extends Component {
+export default class TextEditorRich extends React.Component {
   static propTypes = {
     value: PropTypes.string,
     onChange: PropTypes.func
   }
 
+  handleEditorChange = (content, editor) => {
+    this.props.onChange(content);
+  }
+
   render() {
     const { value, onChange } = this.props;
     return (
-      <ReactQuill
-        readOnly={false}
+      <Editor
+        apiKey='5wvvu6tuyfsyneyxy4u9656vf8qoyn6zizbi4r1epsczo87d'
+        initialValue="<p>This is the initial content of the editor</p>"
+        init={{
+          height: 500,
+          menubar: false,
+          plugins: [
+            'advlist autolink lists link image charmap print preview anchor',
+            'searchreplace visualblocks code fullscreen',
+            'insertdatetime media table paste code help wordcount'
+          ],
+          toolbar:
+            'undo redo | styleselect | forecolor | bold italic | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | removeformat | link image | code'
+        }}
+        onEditorChange={this.handleEditorChange}
         id="TextEditorRich"
         bounds="#TextEditorRich"
-        placeholder="Write your email ..."
-        theme="snow"
-        modules={HTML_MODULE}
-        formats={undefined}
         value={value}
-        onChange={onChange}
+        // onChange={onChange}
       />
     );
   }
-}
+};

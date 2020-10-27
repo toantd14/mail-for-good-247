@@ -64,7 +64,7 @@ const CreateTemplateForm = props => {
       <div><label><Field disabled={textEditorType == 'Plaintext'} name="trackLinksEnabled" component="input" type="checkbox" /> Track link clickthroughs, syntax: {`{linklabel/http://mylinktotrack.com}`}. Available for HTML emails only. </label></div>
       <div><label><Field name="unsubscribeLinkEnabled" component="input" type="checkbox" /> Add unsubscribe link</label></div><hr/>
 
-      <h3>Create email</h3>
+      <h3>Create email [<a id="fb-icon" title="List of Emoticons for facebook" target="_blank" href="http://www.symbols-n-emoticons.com/p/facebook-emoticons-list.html">FB-Icon</a>]</h3>
       <Field name="type" component={renderEditorTypeRadio} label="Type" />
       <Field name="emailSubject" component={renderField} label="Subject" type="text" />
       <Field name="emailBody" component={renderTextEditor} label="Write Email*" textEditorType={textEditorType} />

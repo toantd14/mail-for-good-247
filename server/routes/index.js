@@ -56,27 +56,25 @@ module.exports = (app, passport, io, redis) => {
     }
 
     let token = bodyParam.userName + bodyParam.expiredTime + bodyParam.secretKey;
-    let accessToken = crypto.MD5(crypto.MD5(token));
+    let accessToken = crypto.MD5(crypto.MD5(token).toString());
 
     db.user.findOne({
       where: {
         email: bodyParam.userName
       }
-    }).then( user => {
-      // if(bodyParam.access_token != accessToken) {
-      //   return res.send('Token not valid, please login again!');
-      // }
+    }).then( async user => {
+      if(bodyParam.access_token != accessToken) {
+        return res.send('Token not valid, please login again!');
+      }
 
       let userCreated = user;
       if(user === null){
-        async response => {
-          userCreated = await db.user.createOne({
-            email: bodyParam.userName,
-            name: bodyParam.userName,
-            password: 'secret247',
-            isAdmin: false
-          })
-        }
+        userCreated = await db.user.createOne({
+          email: bodyParam.userName,
+          name: bodyParam.userName,
+          password: 'secret247',
+          isAdmin: false,
+        })
       }
 
       req.login(userCreated,function(){

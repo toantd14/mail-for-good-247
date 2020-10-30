@@ -2,7 +2,7 @@ import React, { PropTypes } from 'react';
 import DOMPurify from 'dompurify';
 
 const PreviewTemplateForm = props => {
-  const { handleSubmit, lastPage, submitting } = props;
+  const { handleSubmit, lastPage, submitting, openTestSendModal } = props;
   const isCreateTemplatePreview = !!props.form;
   let text;
   let form;
@@ -52,6 +52,7 @@ const PreviewTemplateForm = props => {
       {(lastPage && handleSubmit) &&
         <div className="box-footer">
           <button style={{ margin: "1em", width: "160px" }} className="btn btn-lg btn-success" type="button" onClick={handleSubmit} disabled={submitting}>{submitting ? 'Saving Template' : 'Save Template'}</button>
+          <button style={{ margin: "1em", width: "160px" }} className="btn btn-lg btn-info" type="button" onClick={openTestSendModal}>Send a test email</button>
           <button style={{ margin: "1em", width: "160px" }} className="btn btn-lg btn-primary" type="button" onClick={lastPage}>Go back</button>
         </div>}
 
@@ -61,6 +62,7 @@ const PreviewTemplateForm = props => {
 
 PreviewTemplateForm.propTypes = {
   handleSubmit: PropTypes.func,
+  openTestSendModal: PropTypes.func,
   lastPage: PropTypes.func,
   form: PropTypes.object,
   templateView: PropTypes.object,

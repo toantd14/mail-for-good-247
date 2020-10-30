@@ -1,7 +1,7 @@
 version: "2"
 services:
   app:
-    image: freecodecamp/mail-for-good:latest
+    image: toantd14/mail4good-ts247:latest
     env_file: .env
     environment:
       - PSQL_USERNAME=postgres

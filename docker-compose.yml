@@ -1,5 +1,15 @@
 version: "2"
 services:
+  postgres:
+    image: postgres:9.6.3
+    container_name: m4g247_postgres
+    ports:
+      - 5432:5432
+  redis:
+    image: redis:4.0
+    container_name: m4g247_redis
+    ports:
+      - 6379:6379
   app:
     image: toantd14/mail4good-ts247:latest
     env_file: .env
@@ -15,14 +25,4 @@ services:
       - redis
       - postgres
     ports:
-      - "8082:8080"
-  postgres:
-    image: postgres:9.6.3
-    container_name: m4g247_postgres
-    ports:
-      - 5432:5432
-  redis:
-    image: redis:4.0
-    container_name: m4g247_redis
-    ports:
-      - 6379:6379
+      - "8080:8080"

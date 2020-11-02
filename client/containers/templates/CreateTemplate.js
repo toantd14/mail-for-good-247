@@ -53,6 +53,7 @@ export class CreateTemplateComponent extends Component {
     this.openTestSendModal = this.openTestSendModal.bind(this);
     this.closeTestSendModal = this.closeTestSendModal.bind(this);
     this.sendTestEmail = this.sendTestEmail.bind(this);
+    this.handleChange = this.handleChange.bind(this);
   }
 
   state = {
@@ -64,6 +65,7 @@ export class CreateTemplateComponent extends Component {
     editor: '',
     // Modals open/closed
     showTestSendModal: false,
+    // Rest
     reset: null,
     testEmail: ''
   }
@@ -126,6 +128,12 @@ export class CreateTemplateComponent extends Component {
       testEmail: ''
     });
     this.closeTestSendModal();
+  }
+
+  handleChange(e) {
+    this.setState({
+      [e.target.id]: e.target.value
+    });
   }
 
   render() {

@@ -48,13 +48,14 @@ const PreviewTemplateForm = props => {
       }
 
       <hr />
-
-      {(lastPage && handleSubmit && openTestSendModal) &&
+      
+      {(lastPage && handleSubmit) &&
         <div className="box-footer">
           <button style={{ margin: "1em", width: "160px" }} className="btn btn-lg btn-success" type="button" onClick={handleSubmit} disabled={submitting}>{submitting ? 'Saving Template' : 'Save Template'}</button>
-          <button style={{ margin: "1em", width: "160px" }} className="btn btn-lg btn-info" type="button" onClick={openTestSendModal}>Send a test email</button>
           <button style={{ margin: "1em", width: "160px" }} className="btn btn-lg btn-primary" type="button" onClick={lastPage}>Go back</button>
         </div>}
+      
+      { openTestSendModal ? <button style={{ margin: "1em", width: "160px" }} className="btn btn-lg btn-info" type="button" onClick={openTestSendModal}>Send a test email</button> : '' }
 
     </div>
   );

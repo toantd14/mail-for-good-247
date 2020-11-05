@@ -8,12 +8,14 @@ module.exports = (req, res) => {
 
   let userId = req.user.id;
 
-  const { testEmail, campaignId } = req.body;
+  const { testEmail, campaignId, templateId } = req.body;
 
   let campaign = {}; // eslint-disable-line
+  let template = {}; // eslint-disable-line
   let amazonSettings = {}; // eslint-disable-line
 
   const campaignBelongsToUser = new Promise((resolve, reject) => {
+    if(!campaignId) return resolve();
     return db.campaign.findOne({
       where: {
         id: campaignId,
@@ -45,6 +47,52 @@ module.exports = (req, res) => {
           emailSubject,
           emailBody,
           campaignId,
+          type,
+          name,
+          trackLinksEnabled,
+          trackingPixelEnabled,
+          unsubscribeLinkEnabled
+        };
+
+        resolve();
+      }
+    }).catch(err => {
+      reject();
+      throw err;
+    });
+  });
+
+  const templateBelongsToUser = new Promise((resolve, reject) => {
+    if(!templateId) return resolve();
+    return db.template.findOne({
+      where: {
+        id: templateId,
+        userId
+      }
+    }).then(templateInstance => {
+      if (!templateInstance) {
+        reject();
+        res.status(401).send();
+      } else {
+        const templateObject = templateInstance.get({ plain:true });
+        const {
+          fromName,
+          fromEmail,
+          emailSubject,
+          emailBody,
+          type,
+          name,
+          trackLinksEnabled,
+          trackingPixelEnabled,
+          unsubscribeLinkEnabled
+        } = templateObject;
+
+        template = {
+          fromName,
+          fromEmail,
+          emailSubject,
+          emailBody,
+          templateId,
           type,
           name,
           trackLinksEnabled,
@@ -106,41 +154,76 @@ module.exports = (req, res) => {
         ? new AWS.SES({ accessKeyId: accessKey, secretAccessKey: secretKey, region, endpoint: 'http://localhost:9999' })
         : new AWS.SES({ accessKeyId: accessKey, secretAccessKey: secretKey, region, apiVersion: '2010-12-01'});
 
-
-      //replace all variables by their names to not get their '{}' processed by wrapLink()
-      campaign.emailBody = campaign.emailBody.replace(/{{.*}}/gm,(match)=>{return match.slice(2,-2);});
-      // Modify email body for analytics
-      if (campaign.trackLinksEnabled) {
-        campaign.emailBody = wrapLink(campaign.emailBody, 'example-tracking-id', campaign.type, whiteLabelUrl);
-      }
-      if (campaign.trackingPixelEnabled) {
-        campaign.emailBody = insertTrackingPixel(campaign.emailBody, 'example-tracking-id', campaign.type);
-      }
-      if (campaign.unsubscribeLinkEnabled) {
-        campaign.emailBody = insertUnsubscribeLink(campaign.emailBody, 'example-unsubscribe-id', campaign.type, whiteLabelUrl);
-      }
-
-      // Get custom/additional data (extra columns) needed for mail merge feature
-      db.list.findById(campaign.listId, {
-        attributes: ['additionalFields'],
-        raw: true
-      }).then(list => {
-        // Add sample/example data to the custom fields
-        const additionalData = list.additionalFields.reduce((additionalData, field) => {
-          additionalData[field] = `EXAMPLE ${field}`;
-          return additionalData;
-        }, {});
-        campaign.emailBody = mailMerge({ email: testEmail, additionalData }, campaign);
-
-        const emailFormat = AmazonEmail({ email: testEmail }, campaign).email;
-
-        ses.sendEmail(emailFormat, (data, err) => {
-          if (err)
-            res.status(400).send(err);
-          else
-            res.send();
+      if(campaignId) {
+        //replace all variables by their names to not get their '{}' processed by wrapLink()
+        campaign.emailBody = campaign.emailBody.replace(/{{.*}}/gm,(match)=>{return match.slice(2,-2);});
+        // Modify email body for analytics
+        if (campaign.trackLinksEnabled) {
+          campaign.emailBody = wrapLink(campaign.emailBody, 'example-tracking-id', campaign.type, whiteLabelUrl);
+        }
+        if (campaign.trackingPixelEnabled) {
+          campaign.emailBody = insertTrackingPixel(campaign.emailBody, 'example-tracking-id', campaign.type);
+        }
+        if (campaign.unsubscribeLinkEnabled) {
+          campaign.emailBody = insertUnsubscribeLink(campaign.emailBody, 'example-unsubscribe-id', campaign.type, whiteLabelUrl);
+        }
+  
+        // Get custom/additional data (extra columns) needed for mail merge feature
+        db.list.findById(campaign.listId, {
+          attributes: ['additionalFields'],
+          raw: true
+        }).then(list => {
+          // Add sample/example data to the custom fields
+          const additionalData = list.additionalFields.reduce((additionalData, field) => {
+            additionalData[field] = `EXAMPLE ${field}`;
+            return additionalData;
+          }, {});
+          campaign.emailBody = mailMerge({ email: testEmail, additionalData }, campaign);
+  
+          const emailFormat = AmazonEmail({ email: testEmail }, campaign).email;
+  
+          ses.sendEmail(emailFormat, (data, err) => {
+            if (err)
+              res.status(400).send(err);
+            else
+              res.send();
+          });
         });
-      });
+      }
+
+      if(templateId) {
+        //replace all variables by their names to not get their '{}' processed by wrapLink()
+        template.emailBody = template.emailBody.replace(/{{.*}}/gm,(match)=>{return match.slice(2,-2);});
+        // Modify email body for analytics
+        if (template.trackLinksEnabled) {
+          template.emailBody = wrapLink(template.emailBody, 'example-tracking-id', template.type, whiteLabelUrl);
+        }
+        if (template.trackingPixelEnabled) {
+          template.emailBody = insertTrackingPixel(template.emailBody, 'example-tracking-id', template.type);
+        }
+        if (template.unsubscribeLinkEnabled) {
+          template.emailBody = insertUnsubscribeLink(template.emailBody, 'example-unsubscribe-id', template.type, whiteLabelUrl);
+        }
+  
+        // Get custom/additional data (extra columns) needed for mail merge feature
+        db.list.findById(template.listId, {
+          attributes: ['additionalFields'],
+          raw: true
+        }).then(list => {
+          // Add sample/example data to the custom fields
+          const additionalData = {};
+          template.emailBody = mailMerge({ email: testEmail, additionalData }, template);
+  
+          const emailFormat = AmazonEmail({ email: testEmail }, template).email;
+  
+          ses.sendEmail(emailFormat, (data, err) => {
+            if (err)
+              res.status(400).send(err);
+            else
+              res.send();
+          });
+        });
+      }
     })
   .catch(err => {
     res.status(500).send(err);
